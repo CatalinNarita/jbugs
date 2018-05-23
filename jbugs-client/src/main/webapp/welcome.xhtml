@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+<f:view locale="#{language.locale}">
+
+    <h:head>
+        <script name="jquery/jquery.js" library="primefaces"></script>
+        <script type="text/javascript">
+            function handleMessage(facesmessage) {
+                facesmessage.severity = 'info';
+
+                PF('wmsj').show([facesmessage]);
+            }
+        </script>
+    </h:head>
+
+    <h:body
+            style="background-image: url('resources/images/background.jpg');">
+        <header
+                style="width: 100%; height: 100px; margin-left: -1%; margin-top: -1%; margin-right: -2%;  padding: 0; background: white; background: linear-gradient(-90deg, WhiteSmoke, white); -webkit-text-fill-color: black; border: 1px solid #CCC">
+            <h:graphicImage url="resources/images/msg-header.jpg"
+                            style="width:30%; height:100%; opacity: 0.8;
+    			filter: alpha(opacity=50)">
+            </h:graphicImage>
+
+            <p:growl id="msj" widgetVar="wmsj" showDetail="true"/>
+
+
+            <p:socket onMessage="handleMessage" channel="/notify/#{userManagementBean.currentId}"
+                      autoConnect="true"/>
+
+            <h:form id="user" style="float:right ">
+                <p:toolbar id="tb">
+
+                    <f:facet name="right">
+                        <p:commandButton type="button" title="Details"
+                                         icon="ui-icon-search" onclick="PF('dlg').show();"
+                                         update=":user:userDetail"/>
+                        <h:outputText value="Hi, #{welcomeBean.username}"></h:outputText>
+                        <h:commandLink action="#{language.changeLanguage('')}" immediate="true">
+                            <h:graphicImage url="resources/images/en.png" /></h:commandLink>
+
+                        <h:outputText value="          " />
+                        <h:commandLink action="#{language.changeLanguage('ro')}" immediate="true">
+                            <h:graphicImage url="resources/images/ro.png" /></h:commandLink>
+                    </f:facet>
+                </p:toolbar>
+
+                <p:dialog header="#{welcomeBean.user.username}" widgetVar="dlg"
+                          modal="true" height="100">
+                    <p:outputPanel id="userDetail" style="text-align:center;">
+                        <p:panelGrid columns="2">
+                            <f:facet name="Username">
+                                <h:outputText value="#{welcomeBean.user.username}"/>
+                            </f:facet>
+
+                            <h:outputText value="First Name:"/>
+                            <h:outputText value="#{welcomeBean.user.firstName}"/>
+
+                            <h:outputText value="Last Name:"/>
+                            <h:outputText value="#{welcomeBean.user.lastName}"/>
+
+						</p:panelGrid>
+					</p:outputPanel>
+				</p:dialog>
+			</h:form>
+		</header>
+		<h:form style="float:left; height:550px; margin-left:-1%;">
+			<p:tieredMenu style="width:200px; height: 1409px;">
+			
+				<p:menuitem label="Home" icon="ui-icon-refresh" value="#{msg['welcome.home']}"
+                            action="#{welcomeBean.goBack}" update="msj"/>
+                <p:menuitem label="Users" icon="ui-icon-refresh" value="#{msg['welcome.users']}"
+                            action="#{welcomeBean.goToUsersPage}" update="msj" rendered="#{welcomeBean.hasUserManagement}"/>
+                <p:menuitem label="Roles" icon="ui-icon-refresh" value="#{msg['welcome.roles']}"
+                            action="#{welcomeBean.goToRolesPage}" update="msj" rendered="#{welcomeBean.hasRoleManagement}"/>
+                <p:menuitem label="Notifications" icon="ui-icon-refresh"
+                            value="#{msg['welcome.notifications']}" action="#{welcomeBean.goToNotificationsPage}"
+                            update="msj"/>
+                <p:menuitem label="Bugs" icon="ui-icon-refresh" value="#{msg['welcome.bugs']}"
+                            action="#{welcomeBean.goToBugsPage}" update="msj"/>
+                <p:menuitem label="Statistics" icon="ui-icon-refresh" value="#{msg['welcome.statistics']}"
+                            action="#{welcomeBean.goToStatisticsPage}" update="msj"/>
+                <p:menuitem label="Logout" icon="ui-icon-refresh" value="#{msg['users.usersForm.logout']}"
+                            action="#{loginBean.doLogout}" update="msj"/>
+
+            </p:tieredMenu>
+
+
+        </h:form>
+
+    </h:body>
+</f:view>
+</html>

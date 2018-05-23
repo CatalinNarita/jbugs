@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html  xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	lang="#{localeBean.language}">
+<f:view locale="#{language.locale}">
+	<h:head>
+		<script name="jquery/jquery.js" library="primefaces"></script>
+
+		<script>
+   function init () { 
+      $(".ui-growl-image-info").parent().parent().addClass("g-info");
+      $(".ui-growl-image-warn").parent().parent().addClass("g-warn");
+      $(".ui-growl-image-error").parent().parent().addClass("g-error");
+      $(".ui-growl-image-fatal").parent().parent().addClass("g-fatal");
+   }
+</script>
+
+		<style>
+div[id="loginForm:growl_container"]>div[class~="g-fatal"] {
+	background-color: black !important;
+}
+
+div[id="loginForm:growl_container"]>div[class~="g-error"] {
+	background-color: red !important;
+}
+
+div[id="loginForm:growl_container"]>div[class~="g-warn"] {
+	background-color: orange !important;
+}
+
+div[id="loginForm:growl_container"]>div[class~="g-info"] {
+	background-color: green !important;
+}
+</style>
+
+	</h:head>
+	
+<h:body>
+	<h:form id="loginForm">
+	<p:growl id="growl" showDetail="true" life="4000"/>
+	<p:panel id="loginPnl" header="Login"
+			style="width: 350px; margin: 0 auto;">
+		<h:panelGrid columns="2">
+			<h:outputLabel for="username" value="#{msg['login.username']}" />
+			<h:inputText id="username" value="#{loginBean.user.username}">
+				<f:validateLength minimum="3" maximum="10"></f:validateLength>
+			</h:inputText>
+			</h:panelGrid>
+	
+			<h:panelGrid columns="2">
+			<h:outputLabel for="password" value="#{msg['login.password']}" />
+			<h:inputSecret id="password" value="#{loginBean.user.password}"  />
+			</h:panelGrid>
+			
+			<h:panelGrid columns="1">
+			<!--p:captcha id="captcha" requiredMessage="#{msg['login.captcha']}"></p:captcha-->
+			<p:commandButton action = "#{loginBean.doLogin}" value="#{msg['login.button']}" update=":loginForm:growl" oncomplete="init();"/>
+
+			</h:panelGrid>
+				
+		    <h:commandLink action="#{language.changeLanguage('')}" immediate="true">
+		    	<h:graphicImage url="resources/images/en.png" /></h:commandLink>
+		    	
+			<h:outputText value="          " />
+			<h:commandLink action="#{language.changeLanguage('ro')}" immediate="true">
+		    	<h:graphicImage url="resources/images/ro.png" /></h:commandLink>
+			</p:panel>
+			</h:form>
+	
+
+
+	</h:body>
+</f:view>
+
+</html>

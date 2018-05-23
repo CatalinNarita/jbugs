@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+<ui:include src="#{welcomeBean.page}" />
+<f:view locale="#{language.locale}">
+	<h:head>
+		<title>Bug Details</title>
+		<script name="jquery/jquery.js" library="primefaces"></script>
+	</h:head>
+	<h:body>
+
+		<h:form id="bugdet"
+			style=" 
+  			
+  			margin-left: 40%;">
+			<p:outputPanel id="bugDetail" style="text-align:center;">
+				<p:panelGrid columns="2"
+					rendered="#{not empty bugDetailsBean.bugDetails}"
+					columnClasses="label,value">
+					<f:facet name="header">
+						<h:outputText value="#{bugDetailsBean.bugDetails.title}" />
+					</f:facet>
+
+
+					<h:outputText value="#{msg['bugs.newBugForm.description']}" />
+					<h:outputText value="#{bugDetailsBean.bugDetails.description}" />
+
+					<h:outputText value="#{msg['bugs.newBugForm.status']}" />
+					<h:outputText value="#{msg['bugs.bugForm.status.NEW']}"
+						rendered="#{bugDetailsBean.status() == 'NEW'}" />
+					<h:outputText value="#{msg['bugs.bugForm.status.IN_PROGRESS']}"
+						rendered="#{bugDetailsBean.status() == 'IN_PROGRESS'}" />
+					<h:outputText value="#{msg['bugs.bugForm.status.INFO_NEEDED']}"
+						rendered="#{bugDetailsBean.status() == 'INFO_NEEDED'}" />
+					<h:outputText value="#{msg['bugs.bugForm.status.FIXED']}"
+						rendered="#{bugDetailsBean.status() == 'FIXED'}" />
+					<h:outputText value="#{msg['bugs.bugForm.status.REJECTED']}"
+						rendered="#{bugDetailsBean.status() == 'REJECTED'}" />
+					<h:outputText value="#{msg['bugs.bugForm.status.CLOSED']}"
+						rendered="#{bugDetailsBean.status() == 'CLOSED'}" />
+
+
+
+
+					<h:outputText value="#{msg['bugs.newBugForm.severity']}" />
+					<h:outputText value="#{msg['bugs.newBugForm.severity.critical']}"
+						rendered="#{bugDetailsBean.severity() == 'CRITICAL'}" />
+					<h:outputText value="#{msg['bugs.newBugForm.severity.high']}"
+						rendered="#{bugDetailsBean.severity() == 'HIGH'}" />
+					<h:outputText value="#{msg['bugs.newBugForm.severity.medium']}"
+						rendered="#{bugDetailsBean.severity() == 'MEDIUM'}" />
+					<h:outputText value="#{msg['bugs.newBugForm.severity.low']}"
+						rendered="#{bugDetailsBean.severity() == 'LOW'}" />
+
+					<h:outputText value="#{msg['bugs.newBugForm.version']}" />
+					<h:outputText value="#{bugDetailsBean.bugDetails.version}" />
+
+					<h:outputText value="#{msg['bugs.newBugForm.fixedInVersion']}" />
+					<h:outputText value="#{bugDetailsBean.bugDetails.fixedInVersion}" />
+
+					<h:outputText value="#{msg['bugs.newBugForm.targetDate']}" />
+					<h:outputText value="#{bugDetailsBean.bugDetails.targetDate}" ><f:convertDateTime pattern="yyyy-MM-dd"></f:convertDateTime></h:outputText>
+
+					<h:outputText value="#{msg['bugs.newBugForm.assignedTo']}" />
+					<h:outputText
+						value="#{bugDetailsBean.bugDetails.assignedTo.username}" />
+
+					<h:outputText value="#{msg['bugs.newBugForm.createdBy']}" />
+					<h:outputText
+						value="#{bugDetailsBean.bugDetails.createdBy.username}" />
+
+					<h:outputText value="#{msg['bugs.newBugForm.attachments']}" />
+					<p:dataList value="#{bugDetailsBean.getBugAttachments()}" var="att"
+						emptyMessage="#{msg['bugs.attachmentDialog.emptyMessage']}">
+						#{att.fileName}
+						<p:commandButton ajax="false"
+							value="#{msg['bugs.attachmentDialog.download']}"
+							action="#{bugDetailsBean.doDownload(att.id)}">
+						</p:commandButton>
+					</p:dataList>
+
+
+
+				</p:panelGrid>
+			</p:outputPanel>
+
+
+		</h:form>
+		<h:form id="com" style="left-margin:200px">
+		
+			<p:growl id="growl" showDetail="true" />
+
+			<p:dataTable style="" id="comments"
+				value="#{bugDetailsBean.comments}" var="comment">
+				<p:column style="width:20%;"
+					headerText="#{msg['bugs.details.comments.user']}">
+					<p:outputLabel value="#{comment.user.username}" />
+				</p:column>
+
+				<p:column style="width:20%;"
+					headerText="#{msg['bugs.details.comments.date']}">
+					<p:outputLabel value="#{comment.commentDate}" ><f:convertDateTime pattern="yyyy-MM-dd HH:mm"></f:convertDateTime></p:outputLabel>
+				</p:column>
+
+				<p:column headerText="#{msg['bugs.details.comments.context']}">
+					<p:outputLabel value="#{comment.commentText}" />
+				</p:column>
+			</p:dataTable>
+			<p:inputTextarea id="newComment" style="width:50%; height:60%;"
+				value="#{bugDetailsBean.newCommnet}"></p:inputTextarea>
+			<p:commandButton id="commentSaveButton"
+				value="#{msg['bugs.details.comments.post']}"
+				action="#{bugDetailsBean.postComment}"
+				update="growl" />
+		</h:form>
+	</h:body>
+</f:view>
+</html>
+

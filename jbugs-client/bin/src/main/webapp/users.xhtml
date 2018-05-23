@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html">
+
+<h:body>
+	<h:form id="newUserForm">
+		<h:panelGrid columns="3">
+
+			<h:outputLabel for="firstName"
+				value="#{msg['users.newUserForm.firstName']}" />
+			<h:inputText id="firstName"
+				value="#{userManagementBean.newUser.firstName}" required="true">
+			</h:inputText>
+			<h:message for="firstName" />
+
+			<h:outputLabel for="lastName"
+				value="#{msg['users.newUserForm.lastName']}" />
+			<h:inputText id="lastName"
+				value="#{userManagementBean.newUser.lastName}" required="true">
+			</h:inputText>
+			<h:message for="lastName" />
+
+			<h:outputLabel for="phoneNumber"
+				value="#{msg['users.newUserForm.phoneNumber']}" />
+			<h:inputText id="phoneNumber"
+				value="#{userManagementBean.newUser.phoneNumber}">
+				<f:validateRegex pattern="(40|49)\d{10}"></f:validateRegex>
+			</h:inputText>
+			<h:message for="phoneNumber" />
+
+			<h:outputLabel for="email" value="#{msg['users.newUserForm.email']}" />
+			<h:inputText id="email" value="#{userManagementBean.newUser.email}">
+				<f:validateRegex pattern="^[a-zA-Z0-9._%+-]+@msggroup\.com"></f:validateRegex>
+			</h:inputText>
+			<h:message for="email" />
+
+			<h:outputLabel for="password" value="#{msg['login.password']}" />
+			<h:inputText id="password"
+				value="#{userManagementBean.newUser.password}">
+				<f:validateRegex pattern="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,32}"></f:validateRegex>
+			</h:inputText>
+			<h:message for="password" />
+
+			<h:commandButton value="#{msg['users.newUserForm.saveUser']}"
+				update="newUserForm" action="#{userManagementBean.doCreateUser}" />
+
+		</h:panelGrid>
+	</h:form>
+
+	<h:form id="usersForm">
+		<h:dataTable columns="3" value="#{userManagementBean.allusers}"
+			var="user" id="usersTable">
+			<h:column>
+				<f:facet name="header">
+					<h:outputLabel value="#{msg['users.usersForm.username']}"></h:outputLabel>
+				</f:facet>
+				<h:outputText value="#{user.username}" />
+			</h:column>
+
+			<h:column>
+				<f:facet name="header">
+					<h:outputLabel value="#{msg['users.usersForm.firstName']}"></h:outputLabel>
+				</f:facet>
+				<h:outputText value="#{user.firstName}"
+					rendered="#{!user.equals(userManagementBean.editedUser)}" />
+				<h:inputText value="#{userManagementBean.editedUser.firstName}"
+					rendered="#{user.equals(userManagementBean.editedUser)}" />
+			</h:column>
+
+			<h:column>
+				<f:facet name="header">
+					<h:outputLabel value="#{msg['users.usersForm.lastName']}"></h:outputLabel>
+				</f:facet>
+				<h:outputText value="#{user.lastName}"
+					rendered="#{!user.equals(userManagementBean.editedUser)}" />
+				<h:inputText value="#{userManagementBean.editedUser.lastName}"
+					rendered="#{user.equals(userManagementBean.editedUser)}" />
+			</h:column>
+
+			<h:column>
+				<f:facet name="header">
+					<h:outputLabel value="#{msg['users.usersForm.status']}"></h:outputLabel>
+				</f:facet>
+				<h:outputText value="active" rendered="#{user.active}" />
+				<h:outputText value="inactive" rendered="#{!user.active}" />
+			</h:column>
+
+			<h:column>
+				<f:facet name="header">
+					<h:outputLabel
+						value="#{msg['users.usersForm.activate/deactivate']}"></h:outputLabel>
+				</f:facet>
+				<h:commandLink
+					action="#{userManagementBean.deactivateUser(user.id)}"
+					value="deactivate"
+					rendered="#{user.active and !userManagementBean.hasTasks(user.id)}">
+					<!--f:ajax execute="this" render="usersForm:usersTable"></f:ajax-->
+				</h:commandLink>
+				<h:commandLink action="#{userManagementBean.activateUser(user.id)}"
+					value="activate" rendered="#{!user.active}">
+					<!--f:ajax execute="this" render="usersForm:usersTable"></f:ajax-->
+				</h:commandLink>
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					<h:outputLabel value="#{msg['users.usersForm.edit']}"></h:outputLabel>
+				</f:facet>
+				<h:commandButton value="Edit"
+					action="#{userManagementBean.setEditedUser(user)}"
+					rendered="#{not user.equals(userManagementBean.editedUser)}" />
+				<h:commandButton value="Save"
+					action="#{userManagementBean.doSave()}"
+					rendered="#{user.equals(userManagementBean.editedUser)}" />
+			</h:column>
+
+			<h:column>
+				<h:commandButton action="#{userManagementBean.doSave}"
+					value="Save User"
+					rendered="#{user.id.equals(userManagementBean.editedUserId)}">
+				</h:commandButton>
+			</h:column>
+
+
+		</h:dataTable>
+
+		<h:commandLink value="Logout" action="#{loginBean.doLogout}" />
+
+
+
+
+	</h:form>
+</h:body>
+
+</html>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+		<h:head>
+		<script name="jquery/jquery.js" library="primefaces"></script>
+	</h:head>
+	
+<h:body>
+	<h:form id="loginForm">
+		<h:panelGrid columns="3">
+			<h:outputLabel for="username" value="#{msg['login.username']}" />
+			<h:inputText id="username" value="#{loginBean.user.username}">
+				<f:validateLength minimum="3" maximum="10"></f:validateLength>
+			</h:inputText>
+			<h:message for="username"/>
+			
+			<h:outputLabel for="password" value="#{msg['login.password']}" />
+			<h:inputSecret id="password" value="#{loginBean.user.password}"  />
+			<h:message for="password"/>
+
+			<p:captcha id="captcha"></p:captcha>
+			<h:commandButton action = "#{loginBean.doLoginWithCaptcha}" value="#{msg['login.button']}" >
+				
+			</h:commandButton>
+				
+		</h:panelGrid>
+	</h:form>
+
+
+</h:body>
+
+</html>

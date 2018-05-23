@@ -1,0 +1,473 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
+<ui:include src="#{welcomeBean.page}"/>
+<f:view locale="#{language.locale}">
+    <h:head>
+        <script name="jquery/jquery.js" library="primefaces"></script>
+        <script>
+            function checkFileSize(inputFile) {
+                var max = 25 * 1024 * 1024; // 500MB
+
+                if (inputFile.files &amp;&amp; inputFile.files[0].size > max) {
+                    alert("File too large."); // Do your thing to handle the error.
+                    inputFile.value = null; // Clears the field.
+                }
+            }
+        </script>
+
+	</h:head>
+
+	<h:body>
+
+			<p:dialog header="#{msg['bugs.newBugForm.title']}"
+				widgetVar="addBugDlg" modal="true">
+				<h:form id="newBugForm" method="post" enctype="multipart/form-data"
+				rendered="#{bugManagementBean.bugManagerPermission}">
+
+				<script>
+            		$(function () {
+                		setTimeout(setSequentialUpload, 2000);
+            		});
+
+            		function setSequentialUpload() {
+                		PF('attachmentUpload').jq.data().blueimpFileupload.options.sequentialUploads = true;
+            		}
+        		</script>
+
+				<p:growl id="msg" severity="info" />
+				<h:panelGrid columns="3">
+
+
+
+				<h:outputLabel for="title" value="#{msg['bugs.newBugForm.title']}" />
+				<p:inputText id="title" value="#{bugManagementBean.newBug.title}"
+					required="true"
+					requiredMessage="#{msg['bugs.newBugForm.title.validationMessage']}">
+				</p:inputText>
+				<h:message for="title" />
+
+				<h:outputLabel for="description"
+					value="#{msg['bugs.newBugForm.description']}" />
+				<p:inputTextarea id="description"
+					value="#{bugManagementBean.newBug.description}"
+					required="true"
+					requiredMessage="#{msg['bugs.newBugForm.description.requiredMessage']}"
+					validatorMessage="#{msg['bugs.newBugForm.description.validationMessage']}"
+					rows="10" cols="50">
+					<f:validateLength maximum="1000"></f:validateLength>
+				</p:inputTextarea>
+				<h:message for="description" />
+
+				<h:outputLabel for="version"
+					value="#{msg['bugs.newBugForm.version']}" />
+				<p:inputText id="version"
+					value="#{bugManagementBean.newBug.version}"
+					validatorMessage="#{msg['bugs.newBugForm.version.validationMessage']}">
+					<f:validateRegex pattern="^[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*$"></f:validateRegex>
+				</p:inputText>
+				<h:message for="version" />
+
+				<h:outputLabel for="fixedInVersion"
+					value="#{msg['bugs.newBugForm.fixedInVersion']}" />
+				<p:inputText id="fixedInVersion"
+					value="#{bugManagementBean.newBug.fixedInVersion}" 
+					validatorMessage="#{msg['bugs.newBugForm.version.validationMessage']}">
+					<f:validateRegex pattern="(^[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*$)?"></f:validateRegex>
+				</p:inputText>
+				<h:message for="fixedInVersion" />
+
+				<h:outputLabel for="targetDate"
+					value="#{msg['bugs.newBugForm.targetDate']}" />
+				<p:calendar id="targetDate"
+					value="#{bugManagementBean.newBug.targetDate}"
+					converter="#{DateConverter}" showOn="button"
+					validatorMessage="#{msg['bugs.newBugForm.targetDate.validationMessage']}">
+					<f:validator validatorId="DateValidator"></f:validator>
+				</p:calendar>
+				<h:message for="targetDate" />
+
+					<h:outputLabel for="severity"
+						value="#{msg['bugs.newBugForm.severity']}" />
+					<h:selectOneMenu value="#{bugManagementBean.newBug.severity}">
+						<f:selectItem itemValue="low"
+							itemLabel="#{msg['bugs.newBugForm.severity.low']}" />
+						<f:selectItem itemValue="medium"
+							itemLabel="#{msg['bugs.newBugForm.severity.medium']}" />
+						<f:selectItem itemValue="high"
+							itemLabel="#{msg['bugs.newBugForm.severity.high']}" />
+						<f:selectItem itemValue="critical"
+							itemLabel="#{msg['bugs.newBugForm.severity.critical']}" />
+					</h:selectOneMenu>
+					<h:panelGroup />
+
+                    <h:outputLabel for="assignedTo"
+                                   value="#{msg['bugs.newBugForm.assignedTo']}"/>
+                    <p:selectOneMenu id="assignedTo"
+                                     value="#{bugManagementBean.newBug.assignedTo.username}"
+                                     style="width:100%">
+                        <f:selectItems value="#{bugManagementBean.allUsernames}"
+                                       converter="UserConverter"></f:selectItems>
+                    </p:selectOneMenu>
+                    <h:message for="assignedTo"/>
+
+					<h:outputLabel for="attachments"
+						value="#{msg['bugs.newBugForm.attachments']}" />
+
+				<p:fileUpload id="attachments"
+					label="#{msg['bugs.newBugForm.chooseFile']}"
+					fileUploadListener="#{bugManagementBean.uploadAttachment}"
+					widgetVar="attachmentUpload" mode="advanced"
+					dragDropSupport="false" skinSimple="true" multiple="true"
+					update="msg" sizeLimit="26214400"
+					allowTypes="/(\.|\/)(gif|jpe?g|png|pdf|doc|odf|xlsx|xls)$/"
+					uploadLabel="#{msg['bugs.newBugForm.upload']}"
+					cancelLabel="#{msg['bugs.newBugForm.cancel']}"
+					invalidFileMessage="#{msg['bugs.newBugForm.invalidFileType']}"
+					invalidSizeMessage="#{msg['bugs.newBugForm.invalidFileSize']}" />
+				<h:message for="attachments" />
+
+					<p:commandButton value="#{msg['bugs.newBugForm.addNewBug']}"
+						update="newBugForm" action="#{bugManagementBean.doCreateBug}" />
+
+				</h:panelGrid>
+				</h:form>
+			</p:dialog>
+
+        <h:form id="form">
+            <p:growl id="msgs" showDetail="true"/>
+            <p:commandButton value="#{msg['bugs.newBugForm.bugDialog']}"
+                             type="button" onclick="PF('addBugDlg').show();"
+                             rendered="#{bugManagementBean.bugManagerPermission}"/>
+            <p:dataTable id="bugs1" var="bug" value="#{bugManagementBean.bugs}"
+                         editable="#{bugManagementBean.bugManagerPermission}"
+                         style="margin-bottom:20px; " rows="25" paginator="true"
+                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         rowsPerPageTemplate="25" widgetVar="bugsTable"
+                         filteredValue="#{bugManagementBean.filteredBugs}"
+                         selection="#{bugManagementBean.selectedBugs}" rowKey="#{bug.id}">
+
+                <f:facet name="header">
+                    <h:outputText value="#{msg['users.bugPage']}"/>
+                </f:facet>
+
+                <p:ajax event="rowEdit" listener="#{bugManagementBean.onRowEdit}"
+                        update=":form:msgs"/>
+                <p:ajax event="rowEditCancel"
+                        listener="#{bugManagementBean.onRowCancel}" update=":form:msgs"/>
+
+                <p:column selectionMode="multiple"
+                          style="width:16px;text-align:center"/>
+
+                <p:column headerText="#{msg['bugs.newBugForm.title']}"
+                          filterBy="#{bug.title}" filterMatchMode="contains"
+                          sortBy="#{bug.title}">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{bug.title}"/>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputText id="modelInput" value="#{bug.title}"
+                                         style="width:100%"/>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <p:column headerText="#{msg['bugs.newBugForm.description']}"
+                          filterBy="#{bug.description}" filterMatchMode="contains"
+                          sortBy="#{bug.description}"
+                          style=" text-wrap:none;
+                            white-space:nowrap;
+                            overflow:hidden;
+                            text-overflow:ellipsis;">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{bug.description}"/>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputTextarea value="#{bug.description}" style="width:100%"
+                                         label="Description" rows="10" cols="50"/>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <p:column headerText="#{msg['bugs.newBugForm.status']}"
+                          filterBy="#{bug.status}" filterMatchMode="exact"
+                          sortBy="#{bug.status}">
+                    <f:facet name="filter">
+                        <p:selectOneMenu onchange="PF('bugsTable').filter()">
+                            <f:selectItem itemLabel="#{msg['bugs.bugForm.status.SelectOne']}"
+                                          itemValue="#{null}" noSelectionOption="true"/>
+                            <f:selectItems value="#{bugManagementBean.statusList}" var="item"
+                                           itemLabel="#{msg['bugs.bugForm.status.'.concat(item)]}"/>
+                        </p:selectOneMenu>
+                    </f:facet>
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText
+                                    value="#{msg['bugs.bugForm.status.'.concat(bug.status)]}"/>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:selectOneMenu id="status" value="#{bug.status}"
+                                             style="width:100%">
+                                <f:selectItems
+                                        value="#{bugManagementBean.getBugStatusTransitionList(bug.status)}"
+                                        var="item"
+                                        itemLabel="#{msg['bugs.bugForm.status.'.concat(item)]}"></f:selectItems>
+                            </p:selectOneMenu>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <p:column headerText="#{msg['bugs.newBugForm.severity']}"
+                          filterBy="#{bug.severity}" filterMatchMode="exact"
+                          sortBy="#{bug.severity}">
+                    <f:facet name="filter">
+                        <p:selectOneMenu onchange="PF('bugsTable').filter()">
+                            <f:selectItem itemLabel="#{msg['bugs.bugForm.status.SelectOne']}"
+                                          itemValue="#{null}" noSelectionOption="true"/>
+                            <f:selectItems value="#{bugManagementBean.severityList}"
+                                           var="item"
+                                           itemLabel="#{msg['bugs.filter.severity.'.concat(item)]}"/>
+                        </p:selectOneMenu>
+                    </f:facet>
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{msg['bugs.newBugForm.severity.critical']}"
+                                          rendered="#{bug.severity == 'CRITICAL'}"/>
+                            <h:outputText value="#{msg['bugs.newBugForm.severity.high']}"
+                                          rendered="#{bug.severity == 'HIGH'}"/>
+                            <h:outputText value="#{msg['bugs.newBugForm.severity.medium']}"
+                                          rendered="#{bug.severity == 'MEDIUM'}"/>
+                            <h:outputText value="#{msg['bugs.newBugForm.severity.low']}"
+                                          rendered="#{bug.severity == 'LOW'}"/>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:selectOneMenu id="severity" value="#{bug.severity}"
+                                             style="width:100%">
+                                <f:selectItem itemValue="LOW"
+                                              itemLabel="#{msg['bugs.newBugForm.severity.low']}"/>
+                                <f:selectItem itemValue="MEDIUM"
+                                              itemLabel="#{msg['bugs.newBugForm.severity.medium']}"/>
+                                <f:selectItem itemValue="HIGH"
+                                              itemLabel="#{msg['bugs.newBugForm.severity.high']}"/>
+                                <f:selectItem itemValue="CRITICAL"
+                                              itemLabel="#{msg['bugs.newBugForm.severity.critical']}"/>
+                            </p:selectOneMenu>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <p:column headerText="#{msg['bugs.newBugForm.version']}"
+                          filterBy="#{bug.version}" filterMatchMode="contains"
+                          sortBy="#{bug.version}">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{bug.version}"/>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputText value="#{bug.version}" style="width:100%"
+                                         label="Version"/>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <p:column headerText="#{msg['bugs.newBugForm.targetDate']}"
+                          sortBy="#{bug.targetDate}">
+                    <h:outputText value="#{bug.targetDate}">
+                        <f:convertDateTime pattern="yyyy-MM-dd"></f:convertDateTime>
+                    </h:outputText>
+                </p:column>
+
+                <p:column headerText="#{msg['bugs.newBugForm.assignedTo']}"
+                          filterBy="#{bug.assignedTo.username}" filterMatchMode="contains"
+                          sortBy="#{bug.assignedTo.username}">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{bug.assignedTo.username}"/>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:selectOneMenu id="assignedTo"
+                                             value="#{bug.assignedTo.username}" style="width:100%">
+                                <f:selectItems value="#{bugManagementBean.allUsernames}"
+                                               converter="UserConverter"></f:selectItems>
+                            </p:selectOneMenu>
+
+
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <p:column headerText="#{msg['bugs.newBugForm.createdBy']}"
+                          filterBy="#{bug.createdBy.username}" filterMatchMode="contains"
+                          sortBy="#{bug.createdBy.username}">
+                    <h:outputText value="#{bug.createdBy.username}"/>
+                </p:column>
+
+                <p:column headerText="#{msg['bugs.newBugForm.fixedInVersion']}"
+                          filterBy="#{bug.fixedInVersion}" filterMatchMode="contains"
+                          sortBy="#{bug.fixedInVersion}">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{bug.fixedInVersion}"/>
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputText value="#{bug.fixedInVersion}" style="width:100%"
+                                         label="Fixed in Version"/>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
+                <p:column headerText="#{msg['bugs.newBugForm.attachments']}">
+                    <p:commandButton update=":form:AttachmentsDetails"
+                                     oncomplete="PF('attachmentDialog').show()"
+                                     value="#{msg['bugs.bugForm.view']}">
+                        <f:setPropertyActionListener value="#{bug}"
+                                                     target="#{bugManagementBean.selectedBugForDetails}"/>
+                    </p:commandButton>
+                </p:column>
+
+                <p:column style="width:32px">
+                    <p:rowEditor
+                            rendered="#{bugManagementBean.hasPermissionToEdit(bug.assignedTo.username) or bugManagementBean.hasPermissionToEdit(bug.createdBy.username)}"/>
+                </p:column>
+
+
+                <p:column style="width:32px;text-align: center">
+                    <p:commandButton
+                            action="#{bugManagementBean.goToBugdetails(bug.id)}"
+                            icon="ui-icon-search" title="View"
+                    >
+                        <f:setPropertyActionListener value="#{bug}"
+                                                     target="#{bugManagementBean.selectedBugForDetails}"/>
+                    </p:commandButton>
+                </p:column>
+
+                <f:facet name="footer" style="width:100%;">
+                    <p:commandButton
+                            ajax="false"
+                            action="#{bugManagementBean.generateCSV}"
+                            rendered="#{bugManagementBean.exportPermission}"
+                            value="Export CSV"/>
+
+                    <p:commandButton ajax="false"
+                                     action="#{bugManagementBean.generatePDF}"
+                                     rendered="#{bugManagementBean.exportPermission}"
+                                     value="Export PDF"/>
+
+                </f:facet>
+            </p:dataTable>
+            <p:dialog header="Bug Info" widgetVar="bugDialog" modal="true"
+                      showEffect="fade" hideEffect="fade" resizable="false">
+                <p:outputPanel id="bugDetail" style="text-align:center;">
+                    <p:panelGrid columns="2"
+                                 rendered="#{not empty bugManagementBean.selectedBugForDetails}"
+                                 columnClasses="label,value">
+                        <f:facet name="header">
+                            <h:outputText
+                                    value="#{bugManagementBean.selectedBugForDetails.title}"/>
+                        </f:facet>
+
+                        <h:outputText value="Title:"/>
+                        <h:outputText
+                                value="#{bugManagementBean.selectedBugForDetails.title}"/>
+
+                        <h:outputText value="Description:"/>
+                        <h:outputText
+                                value="#{bugManagementBean.selectedBugForDetails.description}"/>
+
+                        <h:outputText value="Status:"/>
+                        <h:outputText
+                                value="#{bugManagementBean.selectedBugForDetails.status}"/>
+
+                        <h:outputText value="Severity:"/>
+                        <h:outputText
+                                value="#{bugManagementBean.selectedBugForDetails.severity}"/>
+
+                        <h:outputText value="Version:"/>
+                        <h:outputText
+                                value="#{bugManagementBean.selectedBugForDetails.version}"/>
+
+                        <h:outputText value="Fixed in version:"/>
+                        <h:outputText
+                                value="#{bugManagementBean.selectedBugForDetails.fixedInVersion}"/>
+
+                        <h:outputText value="Target date:"/>
+                        <h:outputText
+                                value="#{bugManagementBean.selectedBugForDetails.targetDate}"/>
+
+                        <h:outputText value="Assigned to:"/>
+                        <h:outputText
+                                value="#{bugManagementBean.selectedBugForDetails.assignedTo.username}"/>
+
+                        <h:outputText value="Created by:"/>
+                        <h:outputText
+                                value="#{bugManagementBean.selectedBugForDetails.createdBy.username}"/>
+
+                    </p:panelGrid>
+                </p:outputPanel>
+            </p:dialog>
+
+            <p:dialog id="AttachmentsDetails"
+                      header="#{msg['bugs.newBugForm.attachments']}"
+                      widgetVar="attachmentDialog" modal="true" showEffect="fade"
+                      hideEffect="fade" resizable="false">
+                <script>
+                    $(function () {
+                        setTimeout(setSequentialUpload, 2000);
+                    });
+
+                    function setSequentialUpload() {
+                        PF('editUpload').jq.data().blueimpFileupload.options.sequentialUploads = true;
+                    }
+                </script>
+                <p:dataList
+                        value="#{bugManagementBean.getBugAttachments(bugManagementBean.selectedBugForDetails.id)}"
+                        var="att"
+                        emptyMessage="#{msg['bugs.attachmentDialog.emptyMessage']}">
+                    #{att.fileName}
+                    <p:commandButton ajax="false"
+                                     value="#{msg['bugs.attachmentDialog.download']}"
+                                     action="#{bugManagementBean.doDownload(att.id)}">
+                    </p:commandButton>
+                    <p:commandButton value="#{msg['bugs.attachmentDialog.delete']}"
+                                     update=":form:AttachmentsDetails"
+                                     action="#{bugManagementBean.deleteAttachment(att.id)}"
+                                     rendered="#{bugManagementBean.hasPermissionToEdit(bugManagementBean.selectedBugForDetails.assignedTo.username)
+								or bugManagementBean.hasPermissionToEdit(bugManagementBean.selectedBugForDetails.createdBy.username)}">
+                    </p:commandButton>
+                </p:dataList>
+                <p:fileUpload id="editedBugAttachments"
+                              label="#{msg['bugs.newBugForm.chooseFile']}"
+                              fileUploadListener="#{bugManagementBean.editUpload}"
+                              widgetVar="editUpload" mode="advanced" dragDropSupport="false"
+                              skinSimple="true" multiple="true" update="messages"
+                              sizeLimit="26214400"
+                              allowTypes="/(\.|\/)(gif|jpe?g|png|pdf|doc|odf|xlsx|xls)$/"
+                              uploadLabel="#{msg['bugs.newBugForm.upload']}"
+                              cancelLabel="#{msg['bugs.newBugForm.cancel']}"
+                              invalidFileMessage="#{msg['bugs.newBugForm.invalidFileType']}"
+                              invalidSizeMessage="#{msg['bugs.newBugForm.invalidFileSize']}"
+                              rendered="#{bugManagementBean.hasPermissionToEdit(bugManagementBean.selectedBugForDetails.assignedTo.username)
+						or bugManagementBean.hasPermissionToEdit(bugManagementBean.selectedBugForDetails.createdBy.username)}"/>
+                <p:growl id="messages" showDetail="true"/>
+                <p:commandButton value="#{msg['bugs.attachmentDialog.add']}"
+                                 update=":form:AttachmentsDetails"
+                                 action="#{bugManagementBean.updateBugAttachments}"
+                                 rendered="#{bugManagementBean.hasPermissionToEdit(bugManagementBean.selectedBugForDetails.assignedTo.username)
+						or bugManagementBean.hasPermissionToEdit(bugManagementBean.selectedBugForDetails.createdBy.username)}"/>
+            </p:dialog>
+
+
+		</h:form>
+		
+
+	</h:body>
+</f:view>
+</html>

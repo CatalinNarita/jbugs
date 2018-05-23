@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+<ui:include src="#{welcomeBean.page}" />
+<f:view locale="#{language.locale}">
+
+	<h:head>
+		<script name="jquery/jquery.js" library="primefaces"></script>
+	</h:head>
+
+	<h:body>
+
+		<p:dialog header="#{msg['users.newUserForm.addUser']}" widgetVar="addUserDlg" modal="true">
+			<h:form id="newUserForm">
+				<p:growl id="msgs" severity="info"/>
+				<h:panelGrid columns="3">
+
+					<h:outputLabel for="firstName"
+						value="#{msg['users.newUserForm.firstName']}" />
+					<p:inputText id="firstName"
+						value="#{userManagementBean.newUser.firstName}" required="true"
+						requiredMessage="#{msg['users.newUserForm.firstName.validationMessage']}">
+					</p:inputText>
+					<h:message for="firstName" />
+
+					<h:outputLabel for="lastName"
+						value="#{msg['users.newUserForm.lastName']}" />
+					<p:inputText id="lastName"
+						value="#{userManagementBean.newUser.lastName}" required="true"
+						requiredMessage="#{msg['users.newUserForm.lastName.validationMessage']}">
+					</p:inputText>
+					<h:message for="lastName" />
+
+					<h:outputLabel for="phoneNumber"
+						value="#{msg['users.newUserForm.phoneNumber']}" />
+					<p:inputText id="phoneNumber"
+						value="#{userManagementBean.newUser.phoneNumber}"
+						validatorMessage="#{msg['users.newUserForm.phoneNumber.validationMessage']}">
+						<f:validateRegex pattern="(40|49)\d{10}"></f:validateRegex>
+					</p:inputText>
+					<h:message for="phoneNumber" />
+
+					<h:outputLabel for="email"
+						value="#{msg['users.newUserForm.email']}" />
+					<p:inputText id="email" value="#{userManagementBean.newUser.email}"
+						validatorMessage="#{msg['users.newUserForm.email.validationMessage']}">
+						<f:validateRegex pattern="^[a-zA-Z0-9._%+-]+@msggroup\.com"></f:validateRegex>
+					</p:inputText>
+					<h:message for="email" />
+
+				<h:outputLabel for="password" value="#{msg['login.password']}" />
+				<p:password id="password"
+					value="#{userManagementBean.newUser.password}" feedback="true"
+					promptLabel="#{msg['users.newUserForm.password.prompt']}"
+					weakLabel="#{msg['users.newUserForm.password.weak']}"
+					goodLabel="#{msg['users.newUserForm.password.good']}"
+					strongLabel="#{msg['users.newUserForm.password.strong']}"
+					validatorMessage="#{msg['users.newUserForm.password.validationMessage']}">
+					<f:validateRegex
+						pattern="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,32}"></f:validateRegex>
+				</p:password>
+				<h:message for="password" />
+
+					<h:outputLabel for="roles"
+						value="#{msg['users.newUserForm.roles']}"></h:outputLabel>
+					<p:selectManyCheckbox id="roles"
+						value="#{userManagementBean.newUser.userRoles}" required="true"
+						requiredMessage="#{msg['users.newUserForm.roles.validationMessage']}">
+						<f:selectItem itemLabel="#{msg['users.role.administrator']}"
+							itemValue="administrator"></f:selectItem>
+						<f:selectItem itemLabel="#{msg['users.role.projectManager']}"
+							itemValue="project manager"></f:selectItem>
+						<f:selectItem itemLabel="#{msg['users.role.testManager']}"
+							itemValue="test manager"></f:selectItem>
+						<f:selectItem itemLabel="#{msg['users.role.developer']}"
+							itemValue="developer"></f:selectItem>
+						<f:selectItem itemLabel="#{msg['users.role.tester']}"
+							itemValue="tester"></f:selectItem>
+					</p:selectManyCheckbox>
+					<h:message for="roles"></h:message>
+
+					<p:commandButton value="#{msg['users.newUserForm.saveUser']}"
+						update="newUserForm" action="#{userManagementBean.doCreateUser}" />
+
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+		
+		<h:form id="form">
+			<p:growl id="msgs" showDetail="true" />
+			<p:commandButton value="#{msg['users.newUserForm.addUser']}" type="button" onclick="PF('addUserDlg').show();" />
+			<p:dataTable id="usersss" var="user"
+				value="#{userManagementBean.users}" editable="true"
+				style="margin-bottom:20px" rows="25" paginator="true"
+				paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+				rowsPerPageTemplate="10,25,50" widgetVar="usersTable"
+				filteredValue="#{userManagementBean.filteredUsers}">
+				<f:facet name="header">
+           #{msg['users.form.users']}
+       </f:facet>
+
+				<p:ajax event="rowEdit" listener="#{userManagementBean.onRowEdit}"
+					update=":form:msgs" />
+				<p:ajax event="rowEditCancel"
+					listener="#{userManagementBean.onRowCancel}" update=":form:msgs" />
+
+				<p:column headerText="#{msg['users.usersForm.username']}">
+					<h:outputText value="#{user.username}" />
+				</p:column>
+
+				<p:column headerText="#{msg['users.usersForm.firstName']}"
+					filterBy="#{user.firstName}" filterMatchMode="contains"
+					sortBy="#{user.firstName}">
+					<p:cellEditor>
+						<f:facet name="output">
+							<h:outputText value="#{user.firstName}" />
+						</f:facet>
+						<f:facet name="input">
+							<p:inputText id="modelInput" value="#{user.firstName}"
+								style="width:100%">
+								<f:validateRequired />
+							</p:inputText>
+						</f:facet>
+					</p:cellEditor>
+				</p:column>
+
+				<p:column headerText="#{msg['users.usersForm.lastName']}"
+					filterBy="#{user.lastName}" filterMatchMode="contains"
+					sortBy="#{user.lastName}">
+					<p:cellEditor>
+						<f:facet name="output">
+							<h:outputText value="#{user.lastName}" />
+						</f:facet>
+						<f:facet name="input">
+							<p:inputText value="#{user.lastName}" style="width:100%">
+								<f:validateRequired />
+							</p:inputText>
+						</f:facet>
+					</p:cellEditor>
+				</p:column>
+
+				<p:column headerText="#{msg['users.usersForm.phoneNumber']}"
+					filterBy="#{user.phoneNumber}" filterMatchMode="contains"
+					sortBy="#{user.phoneNumber}">
+					<p:cellEditor>
+						<f:facet name="output">
+							<h:outputText value="#{user.phoneNumber}" />
+						</f:facet>
+						<f:facet name="input">
+							<p:inputText value="#{user.phoneNumber}" style="width:100%">
+								<f:validateRegex pattern="(40|49)\d{9}"></f:validateRegex>
+							</p:inputText>
+						</f:facet>
+					</p:cellEditor>
+				</p:column>
+
+				<p:column headerText="#{msg['users.usersForm.email']}"
+					filterBy="#{user.email}" filterMatchMode="contains"
+					sortBy="#{user.email}">
+					<p:cellEditor>
+						<f:facet name="output">
+							<h:outputText value="#{user.email}" />
+						</f:facet>
+						<f:facet name="input">
+							<p:inputText value="#{user.email}" style="width:100%">
+								<f:validateRegex pattern="^[a-zA-Z0-9._%+-]+@msggroup\.com"></f:validateRegex>
+							</p:inputText>
+						</f:facet>
+					</p:cellEditor>
+				</p:column>
+
+				<p:column headerText="#{msg['users.usersForm.status']}"
+					filterBy="#{user.active}" filterMatchMode="equals"
+					sortBy="#{user.active}">
+					<f:facet name="filter">
+						<p:selectOneButton onchange="PF('usersTable').filter()">
+							<f:converter converterId="javax.faces.Boolean" />
+							<f:selectItem itemLabel="All" itemValue="" />
+							<f:selectItem itemLabel="Active" itemValue="true" />
+							<f:selectItem itemLabel="Inactive" itemValue="false" />
+						</p:selectOneButton>
+					</f:facet>
+					<h:outputText value="#{msg['users.usersForm.status.active']}"
+						rendered="#{user.active}" />
+					<h:outputText value="#{msg['users.usersForm.status.inactive']}"
+						rendered="#{!user.active}" />
+				</p:column>
+
+				<p:column headerText="#{msg['users.role']}">
+					<p:cellEditor>
+						<f:facet name="output">
+							<p:dataList value="#{user.userRoles}" var="value">
+							 #{value} 
+							</p:dataList>
+
+						</f:facet>
+						<f:facet name="input">
+							<p:selectCheckboxMenu id="dropdowmn" value="#{user.userRoles}"
+								label="Roles" panelStyle="width:250px">
+								<f:selectItems value="#{userManagementBean.roles}" var="item"
+									itemLabel="#{msg['users.role.edit.'.concat(item)]}" />
+							</p:selectCheckboxMenu>
+						</f:facet>
+					</p:cellEditor>
+				</p:column>
+
+				<p:column>
+					<f:facet name="header">
+						<h:outputLabel
+							value="#{msg['users.usersForm.activate/deactivate']}"></h:outputLabel>
+					</f:facet>
+
+					<p:commandButton action="#{userManagementBean.deactivateUser(user.id)}"
+									 value="#{msg['users.usersForm.deactivate']}"
+									 rendered="#{user.active}"
+										disabled="#{userManagementBean.hasTasks(user.id)}"/>
+					<p:commandButton action="#{userManagementBean.activateUser(user.id)}"
+									 value="#{msg['users.usersForm.activate']}"
+									 rendered="#{!user.active}"/>
+				</p:column>
+
+				<p:column headerText="#{msg['users.bugs.statistics']}">
+					<p:commandButton update=":form:UserBugStatistics"
+						oncomplete="PF('userBugStatisticsDialog').show()"
+						value="#{msg['bugs.bugForm.view']}"
+					disabled="#{!userManagementBean.hasTasks(user.id)}">
+						<f:setPropertyActionListener value="#{user.username}"
+							target="#{userManagementBean.selectedUserUsername}" />
+					</p:commandButton>
+				</p:column>
+
+				<p:column style="width:32px">
+					<p:rowEditor />
+				</p:column>
+			</p:dataTable>
+
+	
+			<p:dialog id="UserBugStatistics" header="#{msg['users.bugs.statistics']}" 
+				widgetVar="userBugStatisticsDialog" modal="true" 
+				showEffect="fade" hideEffect="fade" resizable="false">
+				<p:chart type="pie" model="#{userManagementBean.createUserBugStatistics()}" style="width:400px;height:300px" />
+			</p:dialog>
+		</h:form>
+		<p:growl id="msg1" showDetail="true"></p:growl>
+
+
+	</h:body>
+</f:view>
+</html>

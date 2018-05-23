@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<ui:include src="#{welcomeBean.page}" />
+<f:view locale="#{language.locale}">
+
+	<h:head>
+		<script name="jquery/jquery.js" library="primefaces"></script>
+	</h:head>
+
+	<h:body>
+		<h:form>
+			<p:dataTable id="notificationTable"
+				value="#{notificationManagementBean.notifications}"
+				var="notification" controlsLocation="right" responsive="true">
+				<p:column headerText="#{msg['notifications.type']}">
+					<!-- <f:facet name="output"> -->
+						<h:outputText value="#{notification.notificationType}" />
+					<!-- </f:facet> -->
+				</p:column>
+
+				<p:column headerText="#{msg['notifications.creationDate']}">
+ 						<h:outputText value="#{notification.creationDate}" />
+				</p:column>
+
+				<p:column>
+					<p:commandButton value="#{msg['notifications.show']}"
+						action="#{notificationManagementBean.setMessage(notification.message)}">
+					</p:commandButton>
+				</p:column>
+
+				<p:column headerText="#{msg['notifications.link']}">
+					<h:commandButton value="#{msg['notifications.object']}"
+						action="#{notificationManagementBean.goToLink(notification.link)}" />
+				</p:column>
+
+			</p:dataTable>
+
+		</h:form>
+
+	
+	</h:body>
+</f:view>
+</html>

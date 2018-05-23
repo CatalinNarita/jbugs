@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+<ui:include src="#{welcomeBean.page}" />
+<f:view locale="#{language.locale}">
+	<h:head>
+<title>Role Management</title>
+<script name="jquery/jquery.js" library="primefaces"></script>
+	</h:head>
+	<h:body>
+
+		<p:importEnum type="edu.msg.ro.persistence.role.entity.RoleName"
+			var="role" allSuffix="ALL_ENUM_VALUES" />
+		<p:importEnum type="edu.msg.ro.persistence.role.entity.PermissionType"
+			var="permission" allSuffix="ALL_ENUM_VALUES" />
+		<h:form id="roles">
+			<p:growl id="msgs" showDetail="true" />
+			<p:dataTable id="rolePermissionTable"
+				value="#{roleManagementBean.permissions}" var="perm">
+
+				<p:column headerText="#{msg['users.role.administrator']}">
+					<h:outputText value="#{perm}" />
+					<h:selectBooleanCheckbox
+						value="#{roleManagementBean.configuration[role.ADM][perm]}"></h:selectBooleanCheckbox>
+				</p:column>
+				<p:column headerText="#{msg['users.role.projectManager']}">
+					<h:outputText value="#{perm}" />
+					<h:selectBooleanCheckbox
+						value="#{roleManagementBean.configuration[role.PM][perm]}"></h:selectBooleanCheckbox>
+				</p:column>
+				<p:column headerText="#{msg['users.role.testManager']}">
+					<h:outputText value="#{perm}" />
+					<h:selectBooleanCheckbox
+						value="#{roleManagementBean.configuration[role.TM][perm]}"></h:selectBooleanCheckbox>
+				</p:column>
+				<p:column headerText="#{msg['users.role.developer']}">
+					<h:outputText value="#{perm}" />
+					<h:selectBooleanCheckbox
+						value="#{roleManagementBean.configuration[role.DEV][perm]}"></h:selectBooleanCheckbox>
+				</p:column>
+				<p:column headerText="#{msg['users.role.tester']}">
+					<h:outputText value="#{perm}" />
+					<h:selectBooleanCheckbox
+						value="#{roleManagementBean.configuration[role.TEST][perm]}"></h:selectBooleanCheckbox>
+				</p:column>
+			</p:dataTable>
+
+
+		
+			<p:commandButton value="#{msg['users.role.saveConfig']}"
+				icon="ui-icon-check"
+				actionListener="#{roleManagementBean.saveConfiguration}"
+				update="msgs" />
+
+			<h:commandButton  value="#{msg['users.goBack']}"
+				action="#{welcomeBean.goBack}"></h:commandButton>
+				
+		</h:form>
+	</h:body>
+</f:view>
+</html>
